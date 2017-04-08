@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>SuiNav</title>
+		<link rel="stylesheet" href="../css/bootstrap.css">
+		<link rel="stylesheet" type="text/css" href="../css/sui.nav.css" />
+		<script src="../js/jquery-3.1.1.min.js"></script>
+		<script src="../js/sui.nav.min.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			
+			.container {
+				margin: 10px auto;
+			}
+			
+			.container .body {
+				padding: 0px 10px;
+				position: relative;
+				padding-left: 220px;
+			}
+			.nav-second {
+				position: relative;
+				width: 210px;
+				float: left;
+			}
+			@media only screen and (max-width: 768px) {
+				.container .body {
+					padding: 0px;
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="sui_nav" class="sui-nav horizontal">
+			<div class="sui-nav-wrapper nav-border nav-line">
+				<ul>
+					<li><a class="text-primary"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+					<li><a href="index.jsp"><span class="glyphicon glyphicon-comment"></span> About</a></li>
+					<li><a class="text-danger"><span class="glyphicon glyphicon-fire"></span> Hello</a></li>
+				</ul>
+
+				
+			</div>
+		</div>
+		<br />
+		<div class="container ">
+			<div class="nav-second">
+			<div id="sui_nav2" class="sui-nav">
+				<script type="text/javascript">
+					document.write(document.getElementById('sui_nav').innerHTML);
+					var topbar;
+					$(function() {
+						topbar = $('#sui_nav').SuiNav({});
+						var navbar = $('#sui_nav2').SuiNav({});
+						$('.MenuToggle').click(function() {
+							console.log("toggle");
+							topbar.toggle();
+						});
+						$('.MenuOpen').click(function() {
+							console.log("open");
+							topbar.show();
+						});
+					});
+				</script>
+			</div>
+			</div>
+			<div class="body">
+				<p>
+					<button class="MenuToggle btn btn-default">单击此处显示/关闭导航</button>
+					<button class="MenuOpen btn btn-success">单击此处显示导航</button>
+				</p>
+				<p class="alert alert-info">
+					通过创建一个菜单，同步创建垂直导航、水平导航以及侧滑导航；<br />
+					<code>.sui-nav</code>默认为垂直导航，为<code>.sui-nav</code>添加<code>.horizontal</code>后转为水平导航；<br />
+					垂直导航、水平导航在分辨率&lt;=768px时自动隐藏，转为侧滑导航;<br />
+					<code>.hide-in-horizontal</code>仅在垂直导航中显示，包括侧滑导航<br />
+					<code>.show-in-horizontal</code>仅在水平导航中显示<br />
+					<code>.hide-in-mobile</code>仅在&gt;768px的屏幕显示<br />
+					<code>.show-in-mobile</code>仅在&lt;=768px的屏幕显示<br />
+				</p>
+				<p>介绍以及代码等待完善中，更多请查看源码</p>
+				
+			</div>
+		</div>
+	</body>
+
+</html>
