@@ -1,27 +1,16 @@
 package com.zxj.dbm.service.impl;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-
-import com.zxj.dbm.dto.LogicQueryResponse;
-import com.zxj.dbm.dto.SqlBatchUpdateRequest;
-import com.zxj.dbm.dto.SqlPaginatorRequest;
-import com.zxj.dbm.dto.SqlQueryRequest;
-import com.zxj.dbm.dto.SqlUpdateRequest;
+import com.zxj.dbm.dto.*;
 import com.zxj.dbm.service.LogicServiceInterface;
 import com.zxj.dbm.service.ShopOrderServiceInterface;
 import com.zxj.dbm.service.StorageServiceInterface;
-
 import net.sf.json.JSONArray;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ShopOrderService implements ShopOrderServiceInterface {
 	
@@ -180,7 +169,7 @@ public class ShopOrderService implements ShopOrderServiceInterface {
 	public Map viewPaginatorOrderDetail(Map param) throws Exception {
 		SqlQueryRequest req = new SqlQueryRequest();
 		req.setParam(param);
-		String fileUrl = this.getClass().getResource("saleOrderDetail.sql").getPath();
+		String fileUrl = this.getClass().getResource("/sql/saleOrderDetail.sql").getPath();
 		
 		String sql = FileUtils.readFileToString(new File(fileUrl));
 		req.setSql(sql);

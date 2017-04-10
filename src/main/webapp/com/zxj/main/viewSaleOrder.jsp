@@ -98,14 +98,8 @@
 					{field:'OPER_USER',title:'业务员',align:'center',width:'5%'},
 					{field:'PAYMENT_MODE',title:'付款方式',align:'center',width:'10%'},
 					{field:'REMARK',title:'备注',align:'center',width:'15%'},
-					{field:'STATUS',title:'状态',align:'center',width:'5%'},
-					{field:'ACTION',title:'操作',width:80,align:'center',width:'5%',
-		                formatter:function(value,row,index){
-	                        var s = '<a href="'+root+'/com/zxj/main/editSaleOrder.jsp?ORDER_NO='+row.ORDER_NO+'" class="easyui-linkbutton" onclick="deliverGoods(this)">修改</a> ';
-	                        return s;
-		                    
-		                }
-		            }
+					{field:'STATUS',title:'状态',align:'center',width:'5%'}
+
 					
 				]]
 				

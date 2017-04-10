@@ -4,9 +4,19 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
+<title>进销存导航页面</title>
 </head>
 <body>
+
+<a href="/com/zxj/main/addBuyOrder.jsp">新建采购订单</a><br>
+<a href="/com/zxj/main/buyOrderManage.jsp">采购订单管理</a><br>
+<a href="/com/zxj/main/addSaleOrder.jsp">新建销售订单</a><br>
+<a href="/com/zxj/main/saleOrderManage.jsp">销售订单管理</a><br>
+
+
+<a href="/com/zxj/main/viewSaleOrder.jsp">销售订单报表</a><br>
+
+<a href="/com/zxj/main/viewBuyOrder.jsp">采购订单报表</a><br>
 
 
 
