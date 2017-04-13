@@ -226,6 +226,5 @@ function uuid(len, radix) {
             }
         }
     }
-
     return uuid.join('');
 }
