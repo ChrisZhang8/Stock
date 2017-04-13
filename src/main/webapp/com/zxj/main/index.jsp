@@ -8,15 +8,15 @@
 </head>
 <body>
 
-<a href="<%=request.getContextPath()%>/com/zxj/main/addBuyOrder.jsp">新建采购订单</a><br>
-<a href="<%=request.getContextPath()%>/com/zxj/main/buyOrderManage.jsp">采购订单管理</a><br>
-<a href="<%=request.getContextPath()%>/com/zxj/main/addSaleOrder.jsp">新建销售订单</a><br>
-<a href="<%=request.getContextPath()%>/com/zxj/main/saleOrderManage.jsp">销售订单管理</a><br>
+<a href="<%=request.getContextPath()%>/com/zxj/main/addBuyOrder.jsp" target="_blank">新建采购订单</a><br>
+<a href="<%=request.getContextPath()%>/com/zxj/main/buyOrderManage.jsp" target="_blank">采购订单管理</a><br>
+<a href="<%=request.getContextPath()%>/com/zxj/main/addSaleOrder.jsp" target="_blank">新建销售订单</a><br>
+<a href="<%=request.getContextPath()%>/com/zxj/main/saleOrderManage.jsp" target="_blank">销售订单管理</a><br>
 
 
-<a href="/com/zxj/main/viewSaleOrder.jsp">销售订单报表</a><br>
+<a href="<%=request.getContextPath()%>/com/zxj/main/viewSaleOrder.jsp" target="_blank">销售订单报表</a><br>
 
-<a href="/com/zxj/main/viewBuyOrder.jsp">采购订单报表</a><br>
+<a href="<%=request.getContextPath()%>/com/zxj/main/viewBuyOrder.jsp" target="_blank">采购订单报表</a><br>
 
 
 

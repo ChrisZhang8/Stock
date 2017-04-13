@@ -67,13 +67,26 @@
 			//var fmdata = $("#buyorderform").serialize();
 			
 			$('#buyorderform').form('submit', {
-			    url:root+'/com/zxj/dbm/OrderServlet?method=addBuyOrder',
+			    url:root+'/com/zxj/dbm/BuyOrderServlet?method=addBuyOrder',
 			    onSubmit: function(param){
 			    	param.pdata=JSON.stringify(data.rows);
 			    	//alert(JSON.stringify(param)); 
 			    },
 			    success:function(data){
-			    	$.messager.alert('info',data);
+			        var dt = JSON.parse(data);
+			        if (dt.status == 'N'){
+                        $.messager.alert('error',dt.message);
+					}else {
+                        $.messager.alert('info',dt.result);
+
+                        $('#buyorderform').form('clear');
+                        $('#buyorderform').form('load',{
+                            ORDER_NO:uuid(8, 16)
+                        });
+                        $('#detail').datagrid('loadData',{"total":0,"rows":[]});
+
+					}
+
 			        //alert(data)
 			    }
 			});
@@ -89,7 +102,7 @@
 		$(function(){
 			
 			$('#buyorderform').form('load',{
-				PUR_ORDER_NO:uuid(8, 16)
+				ORDER_NO:uuid(8, 16)
 			});
 			
 			$('#detail').datagrid({
@@ -109,7 +122,23 @@
 					{field:'ORDER_QTY',title:'订货量',align:'right',width:'10%',editor:{type:'numberbox'}},
 					{field:'VENDOR',title:'供应商',width:'10%',editor:'text'},
 					{field:'SHAPE',title:'封装',width:'10%',editor:'text'},
-					{field:'RECEIVE_QTY',title:'到货量',align:'right',width:'10%',editor:{type:'numberbox',value:0}},
+					{field:'RECEIVE_QTY',title:'到货量',align:'right',width:'8%',editor:{type:'numberbox',value:0}},
+                    {field:'TAX_POINT',title:'税点',width:'8%',
+                        formatter:function(value,row){
+                            return row.IS_TAX_NAME || value;
+                        },
+                        editor:{
+                            type:'combobox',
+                            options:{
+                                valueField:'TAX_POINT',
+                                textField:'TAX_POINT_NAME',
+                                data:[{"TAX_POINT_NAME":"增值税-17%","TAX_POINT":"17"},
+									{"TAX_POINT_NAME":"普通税-5%","TAX_POINT":"5"},
+                                    {"TAX_POINT_NAME":"不含税","TAX_POINT":"0"}],
+                                required:true
+                            }
+                        }
+                    },
 					{field:'PRICE',title:'单价',align:'right',width:'5%',editor:{type:'numberbox',options:{precision:2}}},
 					{field:'TOTAL_AMOUNT',title:'总金额',align:'right',width:'5%',editor:{type:'numberbox',options:{precision:2}}},
 					
@@ -136,8 +165,8 @@
 				onBeginEdit:function(rowIndex){
 			        var editors = $(this).datagrid('getEditors', rowIndex);
 			        var n1 = $(editors[3].target);
-			        var n2 = $(editors[7].target);
-			        var n3 = $(editors[8].target);
+			        var n2 = $(editors[8].target);
+			        var n3 = $(editors[9].target);
 			        n1.add(n2).numberbox({
 			            onChange:function(){
 			                var cost = n1.numberbox('getValue')*n2.numberbox('getValue');
@@ -158,7 +187,7 @@
 			
 			$('#fileupload').fileupload({
 		        dataType: 'json',
-		        url:root+'/com/zxj/dbm/OrderServlet?method=importExcel',
+		        url:root+'/com/zxj/dbm/BuyOrderServlet?method=importExcel',
 		        add: function (e, data) {
 		            //data.context = $('<p/>').text('Uploading...').appendTo(document.body);
 		            data.submit();
@@ -239,9 +268,9 @@
 			<table>
 				<tr>
 					
-					<td><input class="easyui-textbox" id="PUR_ORDER_NO" name="PUR_ORDER_NO"  style="width:100%" data-options="label:'采购订单号:',required:true"></td>
+					<td><input class="easyui-textbox" id="PUR_ORDER_NO" name="ORDER_NO"  style="width:100%" data-options="label:'采购订单号:',required:true"></td>
 					<td><input class="easyui-datetimebox" name="ORDER_DATE" label="订单日期:" labelPosition="left" style="width:100%;"></td>
-					<td><input class="easyui-datetimebox" name="DELIVERY_ORDER_DATE" label="订单交期:" labelPosition="left" style="width:100%;"></td>
+
 					<td><input class="easyui-textbox" id="CREATE_USER" name="CREATE_USER"  style="width:100%" data-options="label:'操作人:'"></td>
 				</tr>
 				

@@ -67,7 +67,7 @@
 			//var fmdata = $("#saleorderform").serialize();
 			
 			$('#saleorderform').form('submit', {
-			    url:root+'/com/zxj/dbm/LogicServlet?method=updateSaleOrder',
+			    url:root+'/com/zxj/dbm/SaleOrderServlet?method=updateSaleOrder',
 			    onSubmit: function(param){
 			    	param.pdata=JSON.stringify(data.rows);
 			        // return false to prevent submit;
@@ -89,7 +89,7 @@
 			});
 			
 			$('#saleorderform').form('submit', {
-				url: root+'/com/zxj/dbm/LogicServlet?method=viewSaleOrder',
+				url: root+'/com/zxj/dbm/SaleOrderServlet?method=viewSaleOrder',
 				onSubmit: function(param){
 					
 				},
@@ -132,8 +132,7 @@
 					{field:'STOCK_QTY',title:'库存量',align:'right',width:'10%',editor:'numberbox'},
 					{field:'OUT_QTY',title:'已出货量',align:'right',width:'10%',editor:'numberbox'},
 					{field:'NEED_BUY_QTY',title:'需采购量',align:'right',width:'10%',editor:'numberbox'},
-					{field:'PRICE',title:'未税单价',align:'right',width:'5%',editor:{type:'numberbox',options:{precision:2}}},
-					{field:'TAX_PRICE',title:'含税单价',align:'right',width:'5%',editor:{type:'numberbox',options:{precision:2}}},
+					{field:'PRICE',title:'单价',align:'right',width:'5%',editor:{type:'numberbox',options:{precision:2}}},
 					{field:'TOTAL_AMOUNT',title:'总金额',align:'right',width:'5%',editor:{type:'numberbox',options:{precision:2}}},
 					
 					{field:'REMARK',title:'备注',width:'20%',editor:'text'}
@@ -159,8 +158,8 @@
 				onBeginEdit:function(rowIndex){
 			        var editors = $(this).datagrid('getEditors', rowIndex);
 			        var n1 = $(editors[3].target);
-			        var n2 = $(editors[8].target);
-			        var n3 = $(editors[9].target);
+			        var n2 = $(editors[7].target);
+			        var n3 = $(editors[8].target);
 			        n1.add(n2).numberbox({
 			            onChange:function(){
 			                var cost = n1.numberbox('getValue')*n2.numberbox('getValue');
@@ -181,7 +180,7 @@
 			
 			$('#fileupload').fileupload({
 		        dataType: 'json',
-		        url:root+'/com/zxj/dbm/LogicServlet?method=importExcel',
+		        url:root+'/com/zxj/dbm/SaleOrderServlet?method=importExcel',
 		        add: function (e, data) {
 		            //data.context = $('<p/>').text('Uploading...').appendTo(document.body);
 		            data.submit();
@@ -241,7 +240,7 @@
 				</tr>
 				<tr>
 					<td><input class="easyui-textbox" name="OPER_USER" style="width:100%" data-options="label:'业务员:',required:true"></td>
-					<td><input class="easyui-combobox" style="width:100%" name="INVOICE_TYPE"  data-options="label:'开票类型：',valueField: 'value',textField: 'label',
+					<td><input class="easyui-combobox" style="width:100%" name="TAX_POINT"  data-options="label:'开票类型：',valueField: 'value',textField: 'label',
 																	data: [{
 																		label: '不含税',
 																		value: '0'

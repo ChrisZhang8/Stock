@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
   <display-name>Stock</display-name>
-  <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
-    <welcome-file>index.htm</welcome-file>
-    <welcome-file>index.jsp</welcome-file>
-    <welcome-file>default.html</welcome-file>
-    <welcome-file>default.htm</welcome-file>
-    <welcome-file>default.jsp</welcome-file>
-  </welcome-file-list>
+
   <servlet>
-    <display-name>LogicServlet</display-name>
-    <servlet-name>LogicServlet</servlet-name>
-    <servlet-class>com.zxj.dbm.web.LogicServlet</servlet-class>
+    <display-name>SaleOrderServlet</display-name>
+    <servlet-name>SaleOrderServlet</servlet-name>
+    <servlet-class>com.zxj.dbm.web.SaleOrderServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>LogicServlet</servlet-name>
-    <url-pattern>/com/zxj/dbm/LogicServlet</url-pattern>
+    <servlet-name>SaleOrderServlet</servlet-name>
+    <url-pattern>/com/zxj/dbm/SaleOrderServlet</url-pattern>
   </servlet-mapping>
   <listener>
     <listener-class>
@@ -25,17 +18,17 @@
   </listener>
   <context-param>
     <param-name>contextConfigLocation</param-name>
-    <param-value>classpath:applicationContext.xml</param-value>
+    <param-value>classpath:spring-config.xml</param-value>
   </context-param>
   <servlet>
     <description></description>
-    <display-name>OrderServlet</display-name>
-    <servlet-name>OrderServlet</servlet-name>
-    <servlet-class>com.zxj.dbm.web.OrderServlet</servlet-class>
+    <display-name>BuyOrderServlet</display-name>
+    <servlet-name>BuyOrderServlet</servlet-name>
+    <servlet-class>com.zxj.dbm.web.BuyOrderServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>OrderServlet</servlet-name>
-    <url-pattern>/com/zxj/dbm/OrderServlet</url-pattern>
+    <servlet-name>BuyOrderServlet</servlet-name>
+    <url-pattern>/com/zxj/dbm/BuyOrderServlet</url-pattern>
   </servlet-mapping>
   <servlet>
     <description></description>

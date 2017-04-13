@@ -1,28 +1,22 @@
 package com.zxj.dbm.service.impl;
 
+import com.zxj.dbm.dto.*;
+import com.zxj.dbm.service.BuyOrderServiceInterface;
+import com.zxj.dbm.service.LogicServiceInterface;
+import net.sf.json.JSONArray;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.zxj.dbm.dto.LogicQueryResponse;
-import com.zxj.dbm.dto.SqlBatchUpdateRequest;
-import com.zxj.dbm.dto.SqlPaginatorRequest;
-import com.zxj.dbm.dto.SqlQueryRequest;
-import com.zxj.dbm.dto.SqlUpdateRequest;
-import com.zxj.dbm.service.BuyOrderServiceInterface;
-import com.zxj.dbm.service.LogicServiceInterface;
-
-import net.sf.json.JSONArray;
 
 public class BuyOrderService implements BuyOrderServiceInterface {
 	
 	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	
+	private static final Logger LOGGER = Logger.getLogger(BuyOrderService.class);
 	
 	private LogicServiceInterface logicService;
 
@@ -68,7 +62,8 @@ public class BuyOrderService implements BuyOrderServiceInterface {
 			result.put("total", resp.getTotalRecords());
 			return result;
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			LOGGER.error("查询采购订单失败！",e);
 			throw e;
 		}
 		
@@ -89,47 +84,66 @@ public class BuyOrderService implements BuyOrderServiceInterface {
 
 	@Override
 	public void addBuyOrder(Map order) throws Exception {
-		//add sale order
-		SqlUpdateRequest req = new SqlUpdateRequest();
-		order.put("SID", UUID.randomUUID().toString());
-		order.put("DELIVERY_DATE", df.format(new Date()));
-		order.put("CREATE_DATE_TIME", df.format(new Date()));
-		order.put("STATUS", "P");
-		String sql = "INSERT INTO buy_order(SID,ORDER_NO,ORDER_DATE,DELIVERY_DATE,STATUS,"
-				+ "CREATE_USER,CREATE_DATE_TIME,MODIFY_USER,MODIFY_DATE_TIME)              "+
-				"VALUES(:SID ,:PUR_ORDER_NO ,:ORDER_DATE ,:DELIVERY_DATE ,:STATUS ,:CREATE_USER,:CREATE_DATE_TIME,:CREATE_USER,"+
-				":CREATE_DATE_TIME) ";
-		req.setSql(sql);
-		req.setParam(order);
-		
-		logicService.execute(req);
-		
-		//add order product
-		insertOrderProducts(order);
+		try{
+			//add sale order
+			SqlUpdateRequest req = new SqlUpdateRequest();
+//		order.put("SID", UUID.randomUUID().toString());
+			order.put("DELIVERY_DATE", df.format(new Date()));
+			order.put("CREATE_DATE_TIME", df.format(new Date()));
+			order.put("STATUS", "P");
+			String sql = "INSERT INTO buy_order(ORDER_NO,ORDER_DATE,DELIVERY_DATE,STATUS,"
+					+ "CREATE_USER,CREATE_DATE_TIME,MODIFY_USER,MODIFY_DATE_TIME)              "+
+					"VALUES(:ORDER_NO ,:ORDER_DATE ,:DELIVERY_DATE ,:STATUS ,:CREATE_USER,:CREATE_DATE_TIME,:CREATE_USER,"+
+					":CREATE_DATE_TIME) ";
+			req.setSql(sql);
+			req.setParam(order);
+
+			logicService.execute(req);
+
+			//add order product
+			insertOrderProducts(order);
+		}catch (Exception e){
+			LOGGER.error("新增采购订单失败！",e);
+			throw e;
+		}
+
 
 	}
 	
 	private void insertOrderProducts(Map param)throws Exception{
-		SqlBatchUpdateRequest sr = new SqlBatchUpdateRequest();
-		String ptSql = "insert INTO BUY_ORDER_PRODUCT                                         "+
-				"(SID,BUY_ORDER_NO,PRODUCT,BATCH_NO,VENDOR,ORDER_QTY,                        "+
-				"RECEIVE_QTY,PRICE,TOTAL_AMOUNT,STATUS,REMARK,CREATE_USER,CREATE_DATE_TIME)         "+
-				"values(:SID,:ORDER_NO,:PRODUCT,:BATCH_NO,:VENDOR,:ORDER_QTY,:RECEIVE_QTY,"
-				+ ":PRICE,:TOTAL_AMOUNT,:STATUS,:REMARK,:CREATE_USER,:CREATE_DATE_TIME)           ";
-		sr.setSql(ptSql);
-		JSONArray array = JSONArray.fromObject(param.get("pdata"));
-		if(array !=null && array.size()>0){
-			List<Map> datas = array.subList(0, array.size());
-			for(Map m :datas){
-				m.put("SID", UUID.randomUUID().toString());
-				m.put("CREATE_DATE_TIME",df.format(new Date()));
-				m.put("CREATE_USER", param.get("CREATE_USER"));
-				m.put("ORDER_NO", param.get("ORDER_NO"));
-				m.put("STATUS", "P");
-			}
-			sr.setParam(datas);
-			logicService.execute(sr);
-		}
+		try{
+            SqlBatchUpdateRequest sr = new SqlBatchUpdateRequest();
+            String ptSql = "insert INTO BUY_ORDER_PRODUCT                                         "+
+                    "(BUY_ORDER_NO,PRODUCT,BATCH_NO,VENDOR,ORDER_QTY,                        "+
+                    "RECEIVE_QTY,TAX_POINT,PRICE,TOTAL_AMOUNT,STATUS,REMARK,CREATE_USER,CREATE_DATE_TIME)         "+
+                    "values(:ORDER_NO,:PRODUCT,:BATCH_NO,:VENDOR,:ORDER_QTY,:RECEIVE_QTY,"
+                    + ":TAX_POINT,:PRICE,:TOTAL_AMOUNT,:STATUS,:REMARK,:CREATE_USER,:CREATE_DATE_TIME)           ";
+            sr.setSql(ptSql);
+            JSONArray array = JSONArray.fromObject(param.get("pdata"));
+            if(array !=null && array.size()>0){
+                List<Map> datas = array.subList(0, array.size());
+                for(Map m :datas){
+
+                    m.put("CREATE_DATE_TIME",df.format(new Date()));
+                    m.put("CREATE_USER", param.get("CREATE_USER"));
+                    m.put("ORDER_NO", param.get("ORDER_NO"));
+                    m.put("STATUS", "P");
+                    if(StringUtils.isEmpty(m.get("RECEIVE_QTY").toString())){
+                        m.put("RECEIVE_QTY",0);
+                    }
+                    if(m.get("TAX_POINT")==null || StringUtils.isEmpty(m.get("TAX_POINT").toString())){
+                        m.put("TAX_POINT",0);
+                    }
+
+                }
+                sr.setParam(datas);
+                logicService.execute(sr);
+            }
+        }catch(Exception e){
+		    LOGGER.error("保存采购清单详细信息失败！",e);
+		    throw e;
+        }
+
 		
 	}
 
@@ -156,7 +170,8 @@ public class BuyOrderService implements BuyOrderServiceInterface {
 			//新增products
 			insertOrderProducts(order);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			LOGGER.error("修改采购订单失败！",e);
 			throw e;
 		}
 		

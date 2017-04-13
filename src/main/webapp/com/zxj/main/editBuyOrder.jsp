@@ -22,7 +22,9 @@
     <script type="text/javascript" src="../js/jquery.iframe-transport.js"></script>
     
     <script>
-    
+    	var taxData = [{"TAX_POINT_NAME":"增值税-17%","TAX_POINT":"17"},
+            {"TAX_POINT_NAME":"普通税-5%","TAX_POINT":"5"},
+            {"TAX_POINT_NAME":"不含税","TAX_POINT":"0"}];
     	var root = "<%=request.getContextPath() %>";
 	    function insert(){
 			var row = $('#detail').datagrid('getSelected');
@@ -67,13 +69,21 @@
 			//var fmdata = $("#buyorderform").serialize();
 			
 			$('#buyorderform').form('submit', {
-			    url:root+'/com/zxj/dbm/OrderServlet?method=updateSaleOrder',
+			    url:root+'/com/zxj/dbm/BuyOrderServlet?method=updateBuyOrder',
 			    onSubmit: function(param){
 			    	param.pdata=JSON.stringify(data.rows);
+//			    	alert(param.pdata);
 			        // return false to prevent submit;
 			    },
 			    success:function(data){
-			    	$.messager.alert('info',data);
+//			        alert(data);
+					var dt =  JSON.parse(data);
+			        if (dt.status == 'N'){
+                        $.messager.alert('error',dt.message);
+					}else {
+                        $.messager.alert('info',dt.result);
+					}
+
 			        //alert(data)
 			    }
 			});
@@ -89,7 +99,7 @@
 			});
 			
 			$('#buyorderform').form('submit', {
-				url: root+'/com/zxj/dbm/OrderServlet?method=viewBuyOrder',
+				url: root+'/com/zxj/dbm/BuyOrderServlet?method=viewBuyOrder',
 				onSubmit: function(param){},
 				success: function(data){
 					
@@ -124,8 +134,23 @@
 					{field:'VENDOR',title:'供应商',width:'10%',editor:'text'},
 					{field:'SHAPE',title:'封装',width:'10%',editor:'text'},
 					{field:'BATCH_NO',title:'批号',width:'10%',editor:'text'},
-					{field:'ORDER_QTY',title:'订货量',align:'right',width:'10%',editor:{type:'numberbox'}},
-					{field:'RECEIVE_QTY',title:'到货量',align:'right',width:'10%',editor:{type:'numberbox',value:0}},
+					{field:'ORDER_QTY',title:'订货量',align:'right',width:'8%',editor:{type:'numberbox'}},
+					{field:'RECEIVE_QTY',title:'到货量',align:'right',width:'8%'},
+                    {field:'TAX_POINT',title:'税点',width:'8%',
+                        formatter:function(value,row){
+
+                            return row.TAX_POINT_NAME || value;
+                        },
+                        editor:{
+                            type:'combobox',
+                            options:{
+                                valueField:'TAX_POINT',
+                                textField:'TAX_POINT_NAME',
+                                data:taxData,
+                                required:true
+                            }
+                        }
+                    },
 					{field:'PRICE',title:'单价',align:'right',width:'5%',editor:{type:'numberbox',options:{precision:2}}},
 					{field:'TOTAL_AMOUNT',title:'总金额',align:'right',width:'5%',editor:{type:'numberbox',options:{precision:2}}},
 					
@@ -142,6 +167,13 @@
 				},
 				
 				onEndEdit:function(index,row){
+
+                    /*var ed = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'TAX_POINT'
+                    });
+                    row.TAX_POINT_NAME = $(ed.target).combobox('getText');*/
+
 					row.editing = false;
 					$(this).datagrid('refreshRow', index);
 				},
@@ -152,8 +184,8 @@
 				onBeginEdit:function(rowIndex){
 			        var editors = $(this).datagrid('getEditors', rowIndex);
 			        var n1 = $(editors[5].target);
-			        var n2 = $(editors[7].target);
-			        var n3 = $(editors[8].target);
+			        var n2 = $(editors[8].target);
+			        var n3 = $(editors[9].target);
 			        n1.add(n2).numberbox({
 			            onChange:function(){
 			                var cost = n1.numberbox('getValue')*n2.numberbox('getValue');
@@ -174,7 +206,7 @@
 			
 			$('#fileupload').fileupload({
 		        dataType: 'json',
-		        url:root+'/com/zxj/dbm/LogicServlet?method=importExcel',
+		        url:root+'/com/zxj/dbm/SaleOrderServlet?method=importExcel',
 		        add: function (e, data) {
 		            //data.context = $('<p/>').text('Uploading...').appendTo(document.body);
 		            data.submit();
@@ -229,7 +261,7 @@
 				<tr>
 					<td><input class="easyui-textbox" readonly="readonly" id="ORDER_NO" name="ORDER_NO"  style="width:100%" data-options="label:'采购订单号:',required:true"></td>
 					<td><input class="easyui-datetimebox" name="ORDER_DATE" label="订单日期:" labelPosition="left" style="width:100%;"></td>
-					<td><input class="easyui-datetimebox" name="DELIVERY_DATE" label="订单交期:" labelPosition="left" style="width:100%;"></td>
+
 					<td><input class="easyui-textbox" id="CREATE_USER" name="CREATE_USER"  style="width:100%" data-options="label:'操作人:'"></td>
 				</tr>
 				
