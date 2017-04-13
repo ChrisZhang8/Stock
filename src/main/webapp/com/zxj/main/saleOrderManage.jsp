@@ -29,7 +29,7 @@
                 onExpandRow: function(index,row){
                     var ddv = $(this).datagrid('getRowDetail',index).find('table.ddv');
                     ddv.datagrid({
-                        url:root+'/com/zxj/dbm/LogicServlet?method=viewPaginatorOrderDetail',
+                        url:root+'/com/zxj/dbm/SaleOrderServlet?method=viewPaginatorOrderDetail',
                         queryParams: {ORDER_NO:row.ORDER_NO},
                         fitColumns:true,
                         rownumbers:true,
@@ -40,14 +40,15 @@
                         columns:[[
                         	{field:"ck",checkbox:"true"},
                         	{field:'PRODUCT',title:'产品型号', align:'center',width:'10%'},
-        					{field:'BRAND',title:'品牌',align:'center',width:'10%'},
-        					{field:'BATCH_NO',title:'批号',align:'center',width:'10%'},
+        					{field:'BRAND',title:'品牌',align:'center',width:'5%'},
+        					{field:'BATCH_NO',title:'批号',align:'center',width:'5%'},
         					{field:'ORDER_QTY',title:'订单量',align:'center',width:'5%'},
-        					{field:'STOCK_QTY',title:'库存量',align:'center',width:'5%'},
+                            {field:'BUY_QTY',title:'已购买量',align:'center',width:'5%'},
+        					{field:'STOCK_QTY',title:'库存量（到货量）',align:'center',width:'8%'},
         					{field:'OUT_QTY',title:'已出货量',align:'center',width:'5%'},
+                            {field:'OUT_DATE_TIME',title:'出货日期',align:'center',width:'10%'},
         					{field:'QTY',title:'出货量',align:'center',editor:'numberbox',width:'5%'},
-        					{field:'PRICE',title:'未税单价',align:'center',width:'5%'},
-        					{field:'TAX_PRICE',title:'含税单价',align:'center',width:'5%'},
+        					{field:'PRICE',title:'单价',align:'center',width:'5%'},
         					{field:'TOTAL_AMOUNT',title:'总金额',align:'center',width:'5%',type:'numberbox',options:{precision:2}},
         					{field:'STATUS',title:'状态',align:'center',width:'10%'},
         					{field:'REMARK',title:'备注',align:'center',width:'20%',editor:'text'}
@@ -102,7 +103,7 @@
                 },
 				rownumbers:true,
 				pagination:true,
-				url:root+'/com/zxj/dbm/LogicServlet?method=viewPaginatorOrders',
+				url:root+'/com/zxj/dbm/SaleOrderServlet?method=viewPaginatorOrders',
 				/* queryParams: {
 					name: 'easyui',
 					subject: 'datagrid'
@@ -110,12 +111,12 @@
 				columns:[[
 					{field:'ORDER_NO',title:'销售订单号',align:'center',width:'10%'},
 					{field:'ORDER_DATE',title:'订单日期',align:'center',width:'10%'},
+                    {field:'DELIVERY_DATE',title:'订单交期',align:'center',width:'10%'},
 					{field:'CUSTOMER',title:'客户',align:'center',width:'10%'},
 					{field:'CURRENCY',title:'货币',align:'center',width:'5%'},
-					{field:'AMOUNT',title:'未税金额',align:'center',width:'5%'},
 					{field:'TAX_RATE',title:'税额',align:'center',width:'5%'},
 					{field:'TAX_POINT',title:'税点',align:'center',width:'5%'},
-					{field:'TAX_AMOUNT',title:'含税金额',align:'center',width:'5%'},
+					{field:'ORDER_TOTAL_AMOUNT',title:'订单总金额',align:'center',width:'5%'},
 					{field:'DEPOSIT',title:'预收【定金】',align:'center',width:'5%'},
 					{field:'OPER_USER',title:'业务员',align:'center',width:'5%'},
 					{field:'PAYMENT_MODE',title:'付款方式',align:'center',width:'10%'},
@@ -158,7 +159,7 @@
 		        	param.PRODUCTS = JSON.stringify(rows);
 		        	$.ajax({
 		        		 type:"post",
-		       		     url:root+'/com/zxj/dbm/LogicServlet?method=orderShipment',
+		       		     url:root+'/com/zxj/dbm/SaleOrderServlet?method=orderShipment',
 		       		     data:param,
 		       		     async:false,
 		       		     success:function(data) {
@@ -198,6 +199,7 @@
 		
 	<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="query()">查询</a>
 	<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" style="width:80px" onclick="freshTable()">刷新</a>
+		<a href="<%=request.getContextPath()%>/com/zxj/main/addSaleOrder.jsp" target="_blank">新建销售订单</a>
 	</div>
 	
 	<div class="easyui-panel" >
@@ -210,26 +212,19 @@
 				</tr>
 				<tr>
 					<td><input class="easyui-textbox" id="OPER_USER" name="OPER_USER" style="width:100%" data-options="label:'业务员:'"></td>
-					<td><input class="easyui-combobox" name="INVOICE_TYPE" style="width:100%" data-options="label:'开票类型：',valueField: 'value',textField: 'label',
+					<td><input class="easyui-combobox" name="TAX_POINT" style="width:100%" data-options="label:'开票类型：',valueField: 'value',textField: 'label',
 																	data: [{
 																		label: '不含税',
 																		value: '0'
 																	},{
 																		label: '增值税',
-																		value: '1'
+																		value: '17'
 																	},{
 																		label: '普通税',
-																		value: '2'
+																		value: '3'
 																	}]" />
 					</td>
-					<td><input class="easyui-combobox" name="CURRENCY" style="width:100%" data-options="label:'币种：',valueField: 'value',textField: 'label',
-																	data: [{
-																		label: 'RMB',
-																		value: '0'
-																	},{
-																		label: 'dollar',
-																		value: '1'
-																	}]" />
+					<td><input class="easyui-datetimebox" id="DELIVERY_DATE" name="DELIVERY_DATE" label="订单交期:" labelPosition="left" style="width:100%;">
 					
 					</td>
 				</tr>

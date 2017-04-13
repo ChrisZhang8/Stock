@@ -7,13 +7,17 @@ import com.zxj.dbm.service.StorageServiceInterface;
 import net.sf.json.JSONArray;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ShopOrderService implements ShopOrderServiceInterface {
-	
+	private static final Logger LOGGER = Logger.getLogger(ShopOrderService.class);
 	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private LogicServiceInterface logicService;
 	
@@ -33,18 +37,18 @@ public class ShopOrderService implements ShopOrderServiceInterface {
 		try {
 			//add sale order
 			SqlUpdateRequest req = new SqlUpdateRequest();
-			order.put("SID", UUID.randomUUID().toString());
-			order.put("DELIVERY_DATE", df.format(new Date()));
+//			order.put("SID", UUID.randomUUID().toString());
+//			order.put("DELIVERY_DATE", df.format(new Date()));
 			order.put("CREATE_DATE_TIME", df.format(new Date()));
 			order.put("STATUS", "P");
 			if(StringUtils.isEmpty((String)order.get("DEPOSIT"))){
 				order.put("DEPOSIT", 0.00);
 			}
 			
-			String sql = "INSERT INTO sale_order(SID,ORDER_NO,CUSTOMER,ORDER_DATE,INVOICE_TYPE,CURRENCY,"
+			String sql = "INSERT INTO sale_order(ORDER_NO,CUSTOMER,ORDER_DATE,TAX_POINT,CURRENCY,"
 					+ "DEPOSIT,PAYMENT_MODE,STATUS,DELIVERY_DATE,"
 					+ "CREATE_USER,CREATE_DATE_TIME,MODIFY_USER,MODIFY_DATE_TIME)                                                          "+
-					"VALUES (:SID ,:SALE_ORDER_NO ,:CUSTOMER ,:ORDER_DATE ,:INVOICE_TYPE ,:CURRENCY,:DEPOSIT,:PAYMENT_MODE,"+
+					"VALUES (:SALE_ORDER_NO ,:CUSTOMER ,:ORDER_DATE ,:TAX_POINT ,:CURRENCY,:DEPOSIT,:PAYMENT_MODE,"+
 					":STATUS ,:DELIVERY_DATE ,:CREATE_USER ,:CREATE_DATE_TIME,:CREATE_USER,:CREATE_DATE_TIME      "+
 					"	)                                                                              ";
 			req.setSql(sql);
@@ -55,7 +59,8 @@ public class ShopOrderService implements ShopOrderServiceInterface {
 			//add order product
 			insertOrderProducts(order);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			LOGGER.error("新增销售订单失败！",e);
 			throw e;
 		}
 		
@@ -66,15 +71,15 @@ public class ShopOrderService implements ShopOrderServiceInterface {
 		//新增products
 		SqlBatchUpdateRequest sr = new SqlBatchUpdateRequest();
 		String ptSql = "insert INTO SALE_ORDER_PRODUCT                                                  "+
-				"(SID,SALE_ORDER_NO,PRODUCT,BRAND,BATCH_NO,ORDER_QTY,                        "+
-				"OUT_QTY,PRICE,TAX_PRICE,TOTAL_AMOUNT,STATUS,REMARK,CREATE_DATE_TIME,CREATE_USER)         "+
-				"values(:SID,:ORDER_NO,:PRODUCT,:BRAND,:BATCH_NO,:ORDER_QTY,:OUT_QTY,   "+
-				":PRICE,:TAX_PRICE,:TOTAL_AMOUNT,:STATUS,:REMARK,:CREATE_DATE_TIME,:CREATE_USER)           ";
+				"(SALE_ORDER_NO,PRODUCT,BRAND,BATCH_NO,ORDER_QTY,                        "+
+				"OUT_QTY,PRICE,TOTAL_AMOUNT,STATUS,REMARK,CREATE_DATE_TIME,CREATE_USER)         "+
+				"values(:ORDER_NO,:PRODUCT,:BRAND,:BATCH_NO,:ORDER_QTY,:OUT_QTY,   "+
+				":PRICE,:TOTAL_AMOUNT,:STATUS,:REMARK,:CREATE_DATE_TIME,:CREATE_USER)           ";
 		sr.setSql(ptSql);
 		JSONArray array = JSONArray.fromObject(param.get("pdata"));
 		List<Map> datas = array.subList(0, array.size());
 		for(Map m :datas){
-			m.put("SID", UUID.randomUUID().toString());
+//			m.put("SID", UUID.randomUUID().toString());
 			m.put("CREATE_DATE_TIME",df.format(new Date()));
 			m.put("CREATE_USER", param.get("CREATE_USER"));
 			m.put("ORDER_NO", param.get("SALE_ORDER_NO"));
@@ -95,7 +100,7 @@ public class ShopOrderService implements ShopOrderServiceInterface {
 		order.put("UPDATE_DATE_TIME", df.format(new Date()));
 		req.setParam(order);
 		String sql = "update sale_order set CUSTOMER=:CUSTOMER,ORDER_DATE=:ORDER_DATE,"
-				+ "INVOICE_TYPE=:INVOICE_TYPE,CURRENCY=:CURRENCY,DEPOSIT=:DEPOSIT,PAYMENT_MODE=:PAYMENT_MODE,DELIVERY_DATE=:DELIVERY_DATE,"
+				+ "TAX_POINT=:TAX_POINT,CURRENCY=:CURRENCY,DEPOSIT=:DEPOSIT,PAYMENT_MODE=:PAYMENT_MODE,DELIVERY_DATE=:DELIVERY_DATE,"
 				+ "CREATE_USER=:CREATE_USER,UPDATE_DATE_TIME=:UPDATE_DATE_TIME"
 				+ " where ORDER_NO=:ORDER_NO";
 		req.setSql(sql);
@@ -153,9 +158,14 @@ public class ShopOrderService implements ShopOrderServiceInterface {
 		req.setPageSize(pageSize.toString());
 		req.setStartIndex(startIndex);
 		req.setParam(param);
-		String sql = "SELECT * FROM sale_order where (ORDER_NO = :ORDER_NO OR :ORDER_NO ='')                       "+
+
+		String fileUrl = this.getClass().getResource("/sql/saleOrder.sql").getPath();
+
+		String sql = FileUtils.readFileToString(new File(fileUrl));
+		/*String sql = "SELECT * FROM sale_order where (ORDER_NO = :ORDER_NO OR :ORDER_NO ='')                       "+
 				"AND (CUSTOMER=:CUSTOMER OR :CUSTOMER='') AND (CREATE_USER=:CREATE_USER OR :CREATE_USER='')   "+
 				"ORDER BY MODIFY_DATE_TIME DESC                                                                ";
+		*/
 		req.setSql(sql);
 		LogicQueryResponse resp = logicService.query(req);
 		Map result = new HashMap();
@@ -190,19 +200,31 @@ public class ShopOrderService implements ShopOrderServiceInterface {
 				for(Map m:products){
 					m.put("ORDER_NO", param.get("ORDER_NO"));
 					//订单量 = 已出货量+出货量 status C 完成
-					Integer orderQty = (Integer)m.get("ORDER_QTY"); 
-					Integer outQty = (Integer)m.get("OUT_QTY");
-					Integer qty = Integer.valueOf((String)m.get("QTY"));
-					if(qty <= 0)throw new Exception("出货量必须大于0！");
+					Integer orderQty = (Integer)m.get("ORDER_QTY"); //订单量
+					Integer outQty = (Integer)m.get("OUT_QTY");//已出货量
+					Integer qty = 0;//出货量
+					Integer invQty = (Integer)m.get("STOCK_QTY");//库存量
+					if(invQty <=0 )throw new Exception("型号:"+m.get("PRODUCT")+"没有库存！不能出货！");
+
+					//订单剩余量>库存量 则默认出库量=库存量，否则默认出库量=订单剩余量
+					if (m.get("QTY")==null || StringUtils.isEmpty(m.get("QTY").toString())){
+						qty = (orderQty-outQty)>invQty?invQty:(orderQty-outQty);
+						m.put("QTY",qty);
+					}else{
+						qty = Integer.valueOf((String)m.get("QTY"));
+					}
+					if (qty <= 0)throw new Exception("出货量必须大于0！");
 					if(orderQty== outQty+qty){
 						m.put("STATUS", "C");
 					}else{
 						m.put("STATUS", "H");
 					}
+
+
 				}
 				SqlBatchUpdateRequest req = new SqlBatchUpdateRequest();
 				req.setParam(products);
-				String sql = "update SALE_ORDER_PRODUCT set status=:STATUS,OUT_QTY=OUT_QTY+:QTY where sale_order_no=:ORDER_NO AND PRODUCT = :PRODUCT";
+				String sql = "update SALE_ORDER_PRODUCT set status=:STATUS,OUT_QTY=OUT_QTY+:QTY,OUT_DATE_TIME=NOW() where sale_order_no=:ORDER_NO AND PRODUCT = :PRODUCT";
 				req.setSql(sql);
 				logicService.execute(req);
 			}
@@ -210,7 +232,8 @@ public class ShopOrderService implements ShopOrderServiceInterface {
 			//扣减库存
 			storageService.consume(param);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			LOGGER.error("出货失败！",e);
 			throw e;
 		}
 		

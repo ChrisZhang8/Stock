@@ -29,7 +29,7 @@
                 onExpandRow: function(index,row){
                     var ddv = $(this).datagrid('getRowDetail',index).find('table.ddv');
                     ddv.datagrid({
-                        url:root+'/com/zxj/dbm/LogicServlet?method=viewPaginatorOrderDetail',
+                        url:root+'/com/zxj/dbm/SaleOrderServlet?method=viewPaginatorOrderDetail',
                         queryParams: {ORDER_NO:row.ORDER_NO},
                         fitColumns:true,
                         rownumbers:true,
@@ -80,7 +80,7 @@
                 },
 				rownumbers:true,
 				pagination:true,
-				url:root+'/com/zxj/dbm/LogicServlet?method=viewPaginatorOrders',
+				url:root+'/com/zxj/dbm/SaleOrderServlet?method=viewPaginatorOrders',
 				/* queryParams: {
 					name: 'easyui',
 					subject: 'datagrid'
@@ -125,7 +125,7 @@
         	param.PRODUCTS = JSON.stringify(rows);
         	$.ajax({
         		 type:"post",
-       		     url:root+'/com/zxj/dbm/LogicServlet?method=orderShipment',
+       		     url:root+'/com/zxj/dbm/SaleOrderServlet?method=orderShipment',
        		     data:param,
        		     async:false,
        		     success:function(data) {

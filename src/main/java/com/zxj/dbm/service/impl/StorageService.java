@@ -1,5 +1,12 @@
 package com.zxj.dbm.service.impl;
 
+import com.zxj.dbm.dto.LogicQueryResponse;
+import com.zxj.dbm.dto.SqlBatchUpdateRequest;
+import com.zxj.dbm.dto.SqlQueryRequest;
+import com.zxj.dbm.service.LogicServiceInterface;
+import com.zxj.dbm.service.StorageServiceInterface;
+import org.apache.log4j.Logger;
+
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,19 +14,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.zxj.dbm.dto.LogicQueryResponse;
-import com.zxj.dbm.dto.SqlBatchUpdateRequest;
-import com.zxj.dbm.dto.SqlQueryRequest;
-import com.zxj.dbm.service.LogicServiceInterface;
-import com.zxj.dbm.service.StorageServiceInterface;
-
 public class StorageService implements StorageServiceInterface {
 
 	private SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	private LogicServiceInterface logicService;
-	
-	
+
+	private static final Logger LOGGER = Logger.getLogger(StorageService.class);
 	
 	public void setLogicService(LogicServiceInterface logicService) {
 		this.logicService = logicService;
@@ -40,7 +41,7 @@ public class StorageService implements StorageServiceInterface {
 			}
 			req.setParam(pm);
 			String sql = "INSERT INTO INVENTORY (                                  "+
-					"	SID,                                                    "+
+
 					"	INVENTORY_ID,                                           "+
 					"	BUY_ORDER_NO,                                           "+
 					"	PRODUCT,                                                "+
@@ -56,8 +57,8 @@ public class StorageService implements StorageServiceInterface {
 					")                                                        "+
 					"VALUES                                                   "+
 					"	(                                                       "+
-					"		UUID(),:INVENTORY_ID ,:ORDER_NO ,:PRODUCT,           "+
-					"		:VENDOR,:RECEIVE_QTY,:RECEIVE_QTY,:BATCH_NO,          "+
+					"		:INVENTORY_ID ,:ORDER_NO ,:PRODUCT,           "+
+					"		:VENDOR,:QTY,:QTY,:BATCH_NO,          "+
 					"		:PRICE,:CREATE_USER,:CREATE_DATE_TIME,                "+
 					"		:CREATE_USER,:CREATE_DATE_TIME                        "+
 					"	)                                                       ";
@@ -69,7 +70,7 @@ public class StorageService implements StorageServiceInterface {
 			SqlBatchUpdateRequest request = new SqlBatchUpdateRequest();
 			List<Map> lm = (List<Map>)param.get("PRODUCTS");
 			request.setParam(lm);
-			String updatePrdSql = "update buy_order_product set RECEIVE_QTY=:RECEIVE_QTY,REMARK=:REMARK where SID=:SID ";
+			String updatePrdSql = "update buy_order_product set RECEIVE_QTY=RECEIVE_QTY+:QTY,REMARK=:REMARK where SID=:SID ";
 			request.setSql(updatePrdSql);
 			logicService.execute(request);
 			
@@ -116,7 +117,7 @@ public class StorageService implements StorageServiceInterface {
 		req.setSql(sql);
 		req.setParam(param);
 		LogicQueryResponse resp = logicService.query(req);
-		BigDecimal outQty = new BigDecimal((String)param.get("QTY"));
+		BigDecimal outQty = new BigDecimal((Integer)param.get("QTY"));
 		List<Map> rs = new ArrayList<Map>();
 		for(Map m : resp.getRecords()){
 			BigDecimal qty = (BigDecimal)m.get("QTY");

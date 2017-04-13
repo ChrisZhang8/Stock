@@ -29,7 +29,7 @@
                 onExpandRow: function(index,row){
                     var ddv = $(this).datagrid('getRowDetail',index).find('table.ddv');
                     ddv.datagrid({
-                        url:root+'/com/zxj/dbm/OrderServlet?method=viewPaginatorOrderDetail',
+                        url:root+'/com/zxj/dbm/BuyOrderServlet?method=viewPaginatorOrderDetail',
                         queryParams: {ORDER_NO:row.ORDER_NO},
                         fitColumns:true,
                         rownumbers:true,
@@ -41,13 +41,15 @@
                         	{field:"ck",checkbox:"true"},
                         	{field:'SID',hidden:true},
                         	{field:'PRODUCT',title:'产品型号',width:'10%'},
-        					{field:'BRAND',title:'品牌',width:'10%'},
+        					{field:'BRAND',title:'品牌',width:'5%'},
         					{field:'VENDOR',title:'供应商',width:'10%'},
         					{field:'SHAPE',title:'封装',width:'10%'},
         					{field:'BATCH_NO',title:'批号',width:'10%'},
-        					{field:'ORDER_QTY',title:'订货量',align:'right',width:'10%'},
-        					{field:'RECEIVE_QTY',title:'到货量',align:'right',width:'10%',editor:'numberbox'},
-        					{field:'PRICE',title:'单价',align:'right',width:'10%'},
+        					{field:'ORDER_QTY',title:'订货量',align:'right',width:'8%'},
+                            {field:'RECEIVE_QTY',title:'已到货量',align:'right',width:'8%'},
+        					{field:'QTY',title:'此次到货量',align:'right',width:'8%',editor:'numberbox'},
+                            {field:'TAX_POINT',title:'税点',align:'right',width:'10%'},
+							{field:'PRICE',title:'单价',align:'right',width:'10%'},
         					{field:'TOTAL_AMOUNT',title:'总金额',align:'right',width:'10%'},
         					{field:'REMARK',title:'备注',width:'20%',editor:'text'}
         					
@@ -83,7 +85,7 @@
                     pager.pagination({
                         showPageList:true,
                         buttons:[{
-                            iconCls:'icon-cut',
+                            iconCls:'icon-ok',
                             handler:function(){
                             	storage(ddv,row);
                             }
@@ -96,7 +98,7 @@
                 },
 				rownumbers:true,
 				pagination:true,
-				url:root+'/com/zxj/dbm/OrderServlet?method=viewPaginatorOrders',
+				url:root+'/com/zxj/dbm/BuyOrderServlet?method=viewPaginatorOrders',
 				/* queryParams: {
 					name: 'easyui',
 					subject: 'datagrid'
@@ -110,7 +112,7 @@
 					{field:'STATUS',title:'状态',align:'center',width:'5%'},
 					{field:'ACTION',title:'操作',width:80,align:'center',width:'5%',
 		                formatter:function(value,row,index){
-	                        var s = '<a href="'+root+'/com/zxj/main/editBuyOrder.jsp?ORDER_NO='+row.ORDER_NO+'" class="easyui-linkbutton">修改</a> ';
+	                        var s = '<a href="'+root+'/com/zxj/main/editBuyOrder.jsp?ORDER_NO='+row.ORDER_NO+'" class="easyui-linkbutton" target="_blank">修改</a> ';
 	                        return s;
 		                    
 		                }
@@ -145,7 +147,13 @@
        		     data:param,
        		     async:false,
        		     success:function(data) {
-       		    	 ddv.datagrid('reload');
+        		     if(data.status == 'N'){
+                         $.messager.alert('error',data.message);
+					 }else{
+                         $.messager.alert('info',data.result);
+                         ddv.datagrid('reload');
+					 }
+
        		     },
        		     error:function(data){
        		       alert(data.responseText);
@@ -169,6 +177,7 @@
 		
 	<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="query()">查询</a>
 	<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" style="width:80px" onclick="freshTable()">刷新</a>
+	<a href="<%=request.getContextPath()%>/com/zxj/main/addBuyOrder.jsp" target="_blank">新建采购订单</a>
 	</div>
 	
 	<div class="easyui-panel" >
