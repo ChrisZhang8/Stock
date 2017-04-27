@@ -1,7 +1,7 @@
 /**
  * Created by chris on 2017/4/13.
  */
-var root = "<%=request.getContextPath() %>";
+
 function insert(){
     var row = $('#detail').datagrid('getSelected');
     if (row){
@@ -47,6 +47,10 @@ function save(){
     $('#buyorderform').form('submit', {
         url:root+'/com/zxj/dbm/BuyOrderServlet?method=addBuyOrder',
         onSubmit: function(param){
+            if(data.total==0){
+                $.messager.alert('error','没有订单明细信息！','error');
+                return false;
+            }
             param.pdata=JSON.stringify(data.rows);
             //alert(JSON.stringify(param));
         },

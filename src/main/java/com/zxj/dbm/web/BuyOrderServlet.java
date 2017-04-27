@@ -1,17 +1,6 @@
 package com.zxj.dbm.web;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -25,7 +14,12 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import net.sf.json.JSONObject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * Servlet implementation class BuyOrderServlet
@@ -75,7 +69,7 @@ public class BuyOrderServlet extends BaseServlet {
 			buyOrderService.addBuyOrder(param);
 			this.outPrintJsonText(request, response, "新增采购订单成功！");
 		} catch (Exception e) {
-			this.outPrintJsonException(request, response, e.getMessage());
+			this.outPrintJsonException(request, response, "新增采购订单失败！"+e.getMessage());
 		}
 		
 		

@@ -8,9 +8,9 @@
 </head>
 <body>
 
-<a href="<%=request.getContextPath()%>/com/zxj/main/addBuyOrder.jsp" target="_blank">新建采购订单</a><br>
+
 <a href="<%=request.getContextPath()%>/com/zxj/main/buyOrderManage.jsp" target="_blank">采购订单管理</a><br>
-<a href="<%=request.getContextPath()%>/com/zxj/main/addSaleOrder.jsp" target="_blank">新建销售订单</a><br>
+
 <a href="<%=request.getContextPath()%>/com/zxj/main/saleOrderManage.jsp" target="_blank">销售订单管理</a><br>
 
 
